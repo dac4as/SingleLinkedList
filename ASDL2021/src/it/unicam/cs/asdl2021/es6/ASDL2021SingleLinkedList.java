@@ -47,6 +47,8 @@ public class ASDL2021SingleLinkedList<E> implements List<E> {
          * Crea un nodo "singolo" equivalente a una lista con un solo elemento.
          */
         Node(E item, Node<E> next) {
+            if(item==null)
+                throw new NullPointerException();
             this.item = item;
             this.next = next;
         }
@@ -98,11 +100,12 @@ public class ASDL2021SingleLinkedList<E> implements List<E> {
     public boolean contains(Object o) {
         if(o==null)
             throw new NullPointerException();
-        boolean contains=false;
-        Node<E> index = this.head;
-        while (index != null && !contains) {
-            contains=o.equals(index.item);
-            index=index.next;
+        boolean contains=false;//flag
+        Node<E> index = this.head;//creo un nodo inserendoci il primo elemento della lista (per posizionarmi)
+        while (index != null && !contains)
+        {//mentre il nodo non è nullo (ha successivi) e allo stesso tempo il flag contains è false, ciclo
+            contains=o.equals(index.item);//contains assume il risultato booleano comparando l'oggetto passato con l'item di index (si presuppone che l'oggetto passato sia un item comparabile)
+            index=index.next;//scorro l'indice(nodo) successivo
         }
         return contains;
     }
@@ -112,59 +115,180 @@ public class ASDL2021SingleLinkedList<E> implements List<E> {
         if (e==null)
             throw new NullPointerException();
         tail.next=new Node(e,null);
+        size++;
+        numeroModifiche++;
         return true;
     }
 
     @Override
-    public boolean remove(Object o) {
+    public boolean remove(Object o) {//rimuove il primo trovato senza intaccare eventuali duplicati
+        if(o==null)
+            throw new NullPointerException();
 
+        if(!contains(o) || size==0)
+        {
+            return false;
+        }
+
+        if (head.item.equals(o))
+        {
+            head = head.next;//il next diventa direttamente il prossimo
+            size--;
+            numeroModifiche++;
+            return true;
+        }
+
+        Node<E> node = this.head;//creo un nodo di comodo inserendo il primo valore della listalinked
+        Node<E> nodeNext = this.head.next;//prendo il nodo dopo di head per confrontarlo
+
+        while(nodeNext.next!=null) {//intanto che il nodo n ha un successivo, cicla
+            if(nodeNext.item.equals(o))//se il nodo dopo il mio corrente, ha l'item uguale all'oggetto
+            {
+                node.next = nodeNext.next;//il riferimento del nodo corrente, diventerà il nodo dopo di nodeNext
+                nodeNext.next=null;//rimuovo riferimento del nodo successivo, in modo che lo tolgo dalla lista
+                size--;//modifico le eventuali variabili
+                numeroModifiche++;
+                return true;
+            }
+            node=node.next;
+            nodeNext=nodeNext.next;
+        }
         return false;
     }
 
     @Override
     public void clear() {
-        // TODO implementare
+        Node<E> node = this.head;
+        while(node.next!=null)
+        {
+            node.next=null;
+            node=node.next;
+            size=0;
+            numeroModifiche++;
+        }
     }
 
     @Override
     public E get(int index) {
-        // TODO implementare
-        return null;
+        if(index<0 || index>=size)
+            throw new IndexOutOfBoundsException();
+        Node<E> node = this.head;
+        for(int i=0;i!=index;i++)
+        {
+            node=node.next;
+        }
+        return node.item;
     }
 
     @Override
     public E set(int index, E element) {
-        // TODO implementare
-        return null;
+        if(index<0 || index>=size)
+            throw new IndexOutOfBoundsException();
+        if(element==null)
+            throw new NullPointerException();
+        Node<E> node = this.head;
+        for(int i=0;i!=index;i++)
+        {
+            node=node.next;
+        }
+        numeroModifiche++;
+        return node.item=element;
     }
 
     @Override
     public void add(int index, E element) {
-        // TODO implementare
+        if(index<0 || index>=size)
+            throw new IndexOutOfBoundsException();
+        if(element==null)
+            throw new NullPointerException();
+        Node<E> node = this.head;//creo un nodo di comodo inserendo il primo valore della listalinked
+        Node<E> nodeNext = this.head.next;//prendo il nodo dopo di head per confrontarlo
+        int i=0;
+
+        while(index==i)
+        {//ciclo finchè non arrivo all'indice passato, scorrendo tutti i riferimenti dei nodi che mi servono
+            i++;
+            node.next = nodeNext.next;//il riferimento del nodo corrente, diventerà il nodo dopo di nodeNext etc
+            nodeNext.next = nodeNext.next.next;
+        }
+
+        Node<E> toAdd = new Node<>(element,nodeNext);
+        node.next=toAdd;
+        size++;
+        numeroModifiche++;
+
     }
+
 
     @Override
     public E remove(int index) {
-        // TODO implementare
-        return null;
+        if(index<0 || index>=size)
+            throw new IndexOutOfBoundsException();
+
+        Node<E> node = this.head;//creo un nodo di comodo inserendo il primo valore della listalinked
+        Node<E> nodeNext = this.head.next;//prendo il nodo dopo di head per confrontarlo
+        int i=0;
+
+        while(index==i)
+        {//ciclo finchè non arrivo all'indice passato, scorrendo tutti i riferimenti dei nodi che mi servono
+            i++;
+            node.next = nodeNext.next;//il riferimento del nodo corrente, diventerà il nodo dopo di nodeNext etc
+            nodeNext.next = nodeNext.next.next;
+        }
+        node.next=nodeNext.next;
+        nodeNext.next=null;
+        size--;
+        numeroModifiche++;
+        return nodeNext.item;
     }
 
     @Override
     public int indexOf(Object o) {
-        // TODO implementare
-        return -1;
+        if(o==null)
+            throw new NullPointerException();
+        int index=-1;
+        Node<E> node = this.head;
+        //if (node.item.equals(o)) return 0;//oppure index
+        while(!node.item.equals(o))//finche l'item del nodo non è uguale all'oggetto passato, incrementa index a ogni passo e prendi il prossimo nodo
+        {
+            index++;
+            node=node.next;
+        }
+        return index;
     }
 
     @Override
     public int lastIndexOf(Object o) {
-        // TODO implementare
-        return -1;
+        if(o==null)
+            throw new NullPointerException();
+        int index=-1;
+        int indexReq=0;
+        Node<E> node = this.head;
+        //if (node.item.equals(o)) return 0;//oppure index
+        while(node.next!=null)//finche l'item del nodo non è uguale all'oggetto passato, incrementa index a ogni passo e prendi il prossimo nodo
+        {
+            if(node.item.equals(o))
+            {
+                indexReq=index;
+            }
+            index++;
+            node=node.next;
+        }
+        return indexReq;
     }
     
     @Override
     public Object[] toArray() {
-        // TODO implementare
-        return null;
+        Object[] array=new Object[size+1];
+        Node<E> node = this.head;
+        int i=0;
+
+        while(node.next!=null)
+        {
+            array[i]=node;
+            i++;
+        }
+        return array;
     }
     
     @Override
