@@ -221,7 +221,7 @@ public class ASDL2021SingleLinkedList<E> implements List<E> {
 
 
     @Override
-    public E remove(int index) {
+    public E remove(int index) {//bisogna fare attenzione se sto cancellando il primo o ultimo elemento, sono casi particolari, ed anche se l'elemento è l'unico della lista(da scrivere)
         if(index<0 || index>=size)
             throw new IndexOutOfBoundsException();
 
@@ -232,7 +232,7 @@ public class ASDL2021SingleLinkedList<E> implements List<E> {
         while(index==i)
         {//ciclo finchè non arrivo all'indice passato, scorrendo tutti i riferimenti dei nodi che mi servono
             i++;
-            node.next = nodeNext.next;//il riferimento del nodo corrente, diventerà il nodo dopo di nodeNext etc
+            node.next = nodeNext.next;//il riferimento(next) del nodo corrente, diventerà il nodo dopo di nodeNext etc
             nodeNext.next = nodeNext.next.next;
         }
         node.next=nodeNext.next;
